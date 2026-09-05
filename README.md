@@ -1,8 +1,6 @@
 # dropbox-mcp
 
-MCP (Model Context Protocol) server that exposes Dropbox as tools for any MCP-compatible client (Cursor, Claude Desktop, etc.).
-
-Built on top of a clean OAuth2 + refresh-token Dropbox client.
+MCP (Model Context Protocol) server that exposes Dropbox as tools for any MCP-compatible client.
 
 ## Features
 
@@ -35,61 +33,35 @@ cd dropbox-mcp
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-```
-
-Copy and fill credentials:
-
-```bash
 cp .env.example .env
-# Edit .env with your DROPBOX_APP_KEY, DROPBOX_APP_SECRET
-# and DROPBOX_REFRESH_TOKEN (from the authorize flow)
+# Fill in your DROPBOX_* credentials
 ```
-
-If you don't have a refresh token yet, you can use the authorize script from the companion repo:
-https://github.com/howyouaresignedin-max/dropbox-python-client
 
 ## Running the server
+
+### HTTP mode (recommended for Deepnote / remote access)
 
 ```bash
 python -m dropbox_mcp
 ```
 
-or
+By default it starts on **0.0.0.0:8080** using the modern HTTP transport.
+
+You can override with environment variables:
 
 ```bash
-uvx dropbox-mcp   # once published
+MCP_TRANSPORT=http MCP_HOST=0.0.0.0 MCP_PORT=8080 python -m dropbox_mcp
 ```
 
-## Configure in your MCP client
+### Stdio mode (for local Cursor / Claude Desktop)
 
-### Cursor / Claude Desktop example
-
-Add to your MCP config:
-
-```json
-{
-  "mcpServers": {
-    "dropbox": {
-      "command": "python",
-      "args": ["-m", "dropbox_mcp"],
-      "cwd": "/path/to/dropbox-mcp",
-      "env": {
-        "DROPBOX_APP_KEY": "your_key",
-        "DROPBOX_APP_SECRET": "your_secret",
-        "DROPBOX_REFRESH_TOKEN": "your_refresh_token"
-      }
-    }
-  }
-}
+```bash
+MCP_TRANSPORT=stdio python -m dropbox_mcp
 ```
 
-You can also rely on a `.env` file in the project directory.
+## Deepnote / Port exposure
 
-## Status
-
-- Beta quality
-- Ready for local testing with Cursor / Claude Desktop / other MCP clients
-- Designed so it can later be turned into an official platform connector
+Once the server is running on port 8080, use Deepnote’s “Incoming connections” or port-forwarding feature to expose it if you need external access.
 
 ## License
 

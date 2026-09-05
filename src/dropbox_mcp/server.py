@@ -5,6 +5,7 @@ from __future__ import annotations
 import base64
 import json
 import logging
+import os
 from typing import Any
 
 from mcp.server.fastmcp import FastMCP
@@ -136,8 +137,23 @@ def dropbox_get_temporary_link(path: str) -> str:
 
 
 def main():
+    # Allow override via environment variables
+    transport = os.getenv("MCP_TRANSPORT", "http").lower()
+    host = os.getenv("MCP_HOST", "0.0.0.0")
+    port = int(os.getenv("MCP_PORT", "8080"))
+
     logger.info("Starting Dropbox MCP server...")
-    mcp.run()
+    logger.info("Transport: %s | Host: %s | Port: %s", transport, host, port)
+
+    if transport in ("http", "streamable-http", "streamable_http"):
+        # Modern recommended HTTP transport
+        mcp.run(transport="http", host=host, port=port)
+    elif transport == "sse":
+        # Legacy SSE transport
+        mcp.run(transport="sse", host=host, port=port)
+    else:
+        # Default stdio
+        mcp.run()
 
 
 if __name__ == "__main__":
